@@ -1,51 +1,57 @@
 import Supplement from '@/components/supplement'
 import RelatedSupplementNavigation from '@/components/RelatedSupplementsNavigation'
+import { Supplement as SupplementType } from '@/types/supplement'
+import { STRAPI_API_URL, API_TOKEN_READ_ONLY } from '@/constants/env'
+
 
 export default async function SupplementPage({ params }: { params: { slug: string } }) {
-  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL
-  const token = process.env.API_TOKEN_READ_ONLY
 
   const headers = {
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${API_TOKEN_READ_ONLY}`,
   }
 
-  const supplementQuery = `${strapiUrl}/supplements?filters[slug][$eq]=${params.slug}&populate[related_supplements][populate][supplement][fields][0]=name&populate[related_supplements][populate][supplement][fields][1]=slug`
-  const imageQuery = `${strapiUrl}/supplements?filters[slug][$eq]=${params.slug}&populate=image`
+  const sortedSupplementsQuery = `${STRAPI_API_URL}/supplements?locale=en&populate=image&sort=name:asc`
+  let fetchFailed = false
+  let errText = ''
 
-  // Fetching twice the API because of Strapi limitation of populating twice
-  const [supplementRes, imageRes] = await Promise.all([
-    fetch(supplementQuery, { headers }),
-    fetch(imageQuery, { headers })
-  ])
-  
+  const sortedSupplements = await fetch(sortedSupplementsQuery, { headers })
+    .then(async (res )=> {
+      if (!res.ok) {
+        fetchFailed = true
+        errText = await res.text()
+        return null
+      }
+      return res.json()
+    })
+    .then(list => list.data)
 
-  if (!supplementRes.ok || !imageRes.ok) {
-    const errText = !supplementRes.ok
-      ? await supplementRes.text()
-      : await imageRes.text()
+  const currentIndex = sortedSupplements.findIndex((s: SupplementType) => s.slug === params.slug)
+  const supplement = sortedSupplements[currentIndex]
+
+  const previous = 
+    currentIndex === 0 
+    ? sortedSupplements[sortedSupplements.length - 1] 
+    : sortedSupplements[currentIndex - 1]
+  const next = 
+    currentIndex === sortedSupplements.length - 1 
+    ? sortedSupplements[0] 
+    : sortedSupplements[currentIndex + 1]
+
+  if (fetchFailed) {
     console.error('Fetch failed:', errText)
     return <div>Fetch failed</div>
   }
 
-  const [supplementData, imageData] = await Promise.all([
-    supplementRes.json(),
-    imageRes.json()
-  ])
-
-  console.log('supplementData ', supplementData)
-  console.log('imageData ', imageData)
-
-  const supplement = {
-    ...supplementData.data?.[0],
-    image: imageData.data?.[0]?.image
-  }
-
-  if (!supplementData.data?.[0]) return <div>Supplement not found</div>
+  if (!supplement) return <div>Supplement not found</div>
 
   return (
     <>
       <Supplement supplement={supplement} className="xl:w-3/4 lg:pl-20" />
-      <RelatedSupplementNavigation relatedSupplements={supplement?.related_supplements} className="mt-16 xl:w-3/4 lg:pl-20" />
+      <RelatedSupplementNavigation 
+        previous={previous}
+        next={next}
+        className="mt-16 xl:w-3/4 lg:pl-20" 
+      />
     </>
   )
 }

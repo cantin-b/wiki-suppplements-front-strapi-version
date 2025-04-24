@@ -51,4 +51,7 @@ export type StrapiTextChild = {
     publishedAt?: string
     locale: string
   }
+
+  export type SupplementEssentialInfo = Pick<Supplement, 'id' | 'documentId' | 'name' | 'slug'>
+
   

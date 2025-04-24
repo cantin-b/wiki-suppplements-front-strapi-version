@@ -1,23 +1,17 @@
 import Link from "next/link"
 import { Button } from '@/components/Button'
+import { Supplement } from '@/types/supplement'
 
-type RelatedSupplement = {
-  position: 'previous' | 'next'
-  supplement: {
-    name: string
-    slug: string
-  }
-}
 
-export default function RelatedSupplementNavigation({
-  relatedSupplements,
+export default async function RelatedSupplementNavigation({
+  previous,
+  next,
   className
 }: {
-  relatedSupplements: RelatedSupplement[],
+  previous: Supplement,
+  next: Supplement,
   className?: string
 }) {
-  const previous = relatedSupplements.find((r) => r.position === 'previous')?.supplement ?? null
-  const next = relatedSupplements.find((r) => r.position === 'next')?.supplement ?? null
 
   if (!previous && !next) return null
 
