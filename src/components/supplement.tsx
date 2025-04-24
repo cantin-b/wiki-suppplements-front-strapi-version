@@ -1,5 +1,3 @@
-'use client'
-
 import ReactMardown from 'react-markdown'
 import { strapiBlocksToMarkdown } from '@/utils/strapiMarkdownHelper'
 import type { Supplement } from '@/types/supplement'
@@ -47,7 +45,7 @@ export default function Supplement({ supplement, className }: Props) {
         </ReactMardown>
           {imageUrl && (
             <Image
-              src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${imageUrl}`}
+              src={`${process.env.STRAPI_URL}${imageUrl}`}
               alt={imageAlt}
               width={800}
               height={500}

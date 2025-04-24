@@ -2,7 +2,7 @@ import Supplement from '@/components/supplement'
 import RelatedSupplementNavigation from '@/components/RelatedSupplementsNavigation'
 
 export default async function SupplementPage({ params }: { params: { slug: string } }) {
-  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL
+  const strapiUrl = process.env.STRAPI_API_URL
   const token = process.env.API_TOKEN_READ_ONLY
 
   const headers = {
