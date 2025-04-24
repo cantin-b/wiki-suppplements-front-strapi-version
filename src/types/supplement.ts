@@ -1,12 +1,27 @@
+/* Rich Text Types */
 export type StrapiTextChild = {
-    text: string
-    type: string
+  type: 'text'
+  text: string
+  bold?: boolean
+  italic?: boolean
+  underline?: boolean
   }
-  
-  export type StrapiBlock = {
-    type: string
-    children: StrapiTextChild[]
+
+  export type StrapiLinkNode = {
+  type: 'link'
+  url: string
+  children: StrapiTextNode[]
   }
+
+  export type StrapiTextNode = StrapiTextChild | StrapiLinkNode
+
+  export type StrapiBlock =
+  | { type: 'paragraph'; children: StrapiTextNode[] }
+  | { type: 'heading'; level: number; children: StrapiTextNode[] }
+  | { type: 'list'; format: 'unordered' | 'ordered'; children: StrapiListItem[] }
+  | { type: 'list-item'; children: StrapiTextNode[] }
+
+  export type StrapiListItem = { type: 'list-item'; children: StrapiTextNode[] }
   
   type SupplementImage = {
     name: string
